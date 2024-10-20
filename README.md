@@ -278,4 +278,25 @@ Ejecutamos la sentencia y guardamos con un commit `conn.commit()`
 
 ### Ejemplo de salida
 
-![Screenshot 2024-10-20 at 6.16.27 PM](/Screenshot 2024-10-20 at 6.16.27 PM.png)
+```
+mysql> desc user;
++------------+--------------+------+-----+-------------------+-------------------+
+| Field      | Type         | Null | Key | Default           | Extra             |
++------------+--------------+------+-----+-------------------+-------------------+
+| id         | int unsigned | NO   | PRI | NULL              | auto_increment    |
+| username   | varchar(50)  | NO   |     | NULL              |                   |
+| password   | varchar(50)  | NO   |     | NULL              |                   |
+| email      | varchar(50)  | NO   |     | NULL              |                   |
+| created_at | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++------------+--------------+------+-----+-------------------+-------------------+
+5 rows in set (0.01 sec)
+
+mysql> select * from user;
++----+----------+-----------+------------------------+---------------------+
+| id | username | password  | email                  | created_at          |
++----+----------+-----------+------------------------+---------------------+
+|  1 | Yonier   | password1 | yonier@aprendiendo.com | 2024-10-20 23:14:27 |
++----+----------+-----------+------------------------+---------------------+
+1 row in set (0.01 sec)
+```
+
