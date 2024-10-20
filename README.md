@@ -1,4 +1,10 @@
+---
+typora-root-url: ../img
+---
+
 # Python DB
+
+Lo consiguiente tiene como objetivo repasar conceptos de python con base de datos.
 
 Lo primero que debemos hacer es generar nuestra base de datos, para esto nos apoyaremos de Docker para tales fines.
 
@@ -108,3 +114,167 @@ if __name__ == '__main__':
 ### Explicación:
 
 Hacemos uso del método **cursor** que está en el objeto **conn** creado anteriormente, este nos devuelve un objeto tipo cursor el cual tiene un método **execute** el cual nos permite ejecutar sentencias SQL.
+
+## Conexión bajo contexto
+
+Con esto podemos obtener un código pythonico, harémos un re-factor
+
+Para esto utilizamos la sentencia `with` el cual incluso ya cierra la conexión 
+
+```python
+import pymysql
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', port=3306, user='neytor', 
+                            passwd='neytor', db='neytor-db')
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            print('Connection successful')
+        
+    except pymysql.MySQLError as e:
+        print('Error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+### Explicación
+
+Eliminamos cursor = conn.cursor()  a favor del contexto haciendo uso de with
+
+## Variables de entorno
+
+En nuestro so host definiremos 3 variables de entorno
+
+```shell
+export DB_USER=neytor
+export DB_PASS=neytor
+export DB_NAME=neytor-db
+```
+
+Para obtener variables de entorno podemos apoyarnos de la libreria **os** pero no obstante para este ejemplo usaremos **python-decouple** así que procederemos a instalarla
+
+### Instalar decouple
+
+```shell
+pip install python-decouple
+```
+
+ 
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+        
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+## Insertar registros
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            
+            #INSERTAR UN REGISTRO
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            
+            # Los placeholders %s se reemplazan por los valores que se pasan en el segundo argumento
+            
+            values = ('Yonier', 'password1', 'yonier@aprendiendo.com')
+            
+            # Ejecutamos la consulta
+            cursor.execute(query, values)
+            
+            # Guardamos los cambios en la base de datos
+            conn.commit()
+        
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+### Explicación
+
+Creamos una variable dentro del contexto el cual tiene una sentencia sql. Los placeholders %s se reemplazan por los valores que se pasan en el segundo argumento en este caso es una dupla que está en **values** 
+
+Ejecutamos la sentencia y guardamos con un commit `conn.commit()`
+
+### Ejemplo de salida
+
+![image-20241020181639429](/Users/yasprill/Library/Application Support/typora-user-images/image-20241020181639429.png)

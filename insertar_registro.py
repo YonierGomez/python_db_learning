@@ -26,6 +26,19 @@ if __name__ == '__main__':
             #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
             cursor.execute(DROP_TABLE_USER)
             cursor.execute(USER_TABLE)
+            
+            #INSERTAR UN REGISTRO
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            
+            # Los placeholders %s se reemplazan por los valores que se pasan en el segundo argumento
+            
+            values = ('Yonier', 'password1', 'yonier@aprendiendo.com')
+            
+            # Ejecutamos la consulta
+            cursor.execute(query, values)
+            
+            # Guardamos los cambios en la base de datos
+            conn.commit()
         
     except pymysql.MySQLError as e:
         print('Ha ocurrido un error: ', e)
