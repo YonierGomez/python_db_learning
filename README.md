@@ -1,5 +1,6 @@
 ---
 typora-root-url: ../img
+typora-copy-images-to: ../img
 ---
 
 # Python DB
@@ -277,4 +278,4 @@ Ejecutamos la sentencia y guardamos con un commit `conn.commit()`
 
 ### Ejemplo de salida
 
-![image-20241020181639429](/Users/yasprill/Library/Application Support/typora-user-images/image-20241020181639429.png)
+![Screenshot 2024-10-20 at 6.16.27 PM](/Screenshot 2024-10-20 at 6.16.27 PM.png)
