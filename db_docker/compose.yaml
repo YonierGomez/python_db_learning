@@ -1,0 +1,13 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      - MYSQL_ROOT_PASSWORD=neytor # Cambia esto por una contraseña segura
+      - MYSQL_DATABASE=neytor-db         # Nombre de la base de datos que se creará al iniciar
+      - MYSQL_USER=neytor                    # Usuario que se creará
+      - MYSQL_PASSWORD=neytor       # Contraseña del usuario
+    ports:
+      - "3306:3306"  # Exponer el puerto para acceder a la base de datos
+    volumes:
+      - $PWD/mysql_data:/var/lib/mysql  # Persistencia de datos
