@@ -28,12 +28,15 @@ if __name__ == '__main__':
             cursor.execute(USER_TABLE)
             
             #INSERTAR UN REGISTRO
-            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
-            # Los placeholders %s se reemplazan por los valores que se pasan en el segundo argumento
-            values = ('Yonier', 'password1', 'yonier@aprendiendo.com')
+            # query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            # # Los placeholders %s se reemplazan por los valores que se pasan en el segundo argumento
+            # values = ('Yonier', 'password1', 'yonier@aprendiendo.com')
             
+            query = "INSERT INTO user (username, password, email) VALUES ('{}', '{}', '{}')".format('Yonier', 'password1', 'yonier@aprendiendo.com')
             # Ejecutamos la consulta
-            cursor.execute(query, values)
+            # cursor.execute(query, values)
+            cursor.execute(query)
+            
             
             # Guardamos los cambios en la base de datos
             conn.commit()
