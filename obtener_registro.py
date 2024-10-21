@@ -81,6 +81,15 @@ if __name__ == '__main__':
             rows = cursor.execute(query)
             for row in cursor.fetchmany(2):
                 print(row)
+                
+            print('='*50)
+            print('Obtener un solo registro, el prime')
+            print('='*50)
+            
+            query = "SELECT * FROM user WHRE id = 1"
+            rows = cursor.execute(query)
+            for row in cursor.fetchone():
+                print(row)
             
     except pymysql.MySQLError as e:
         print('Ha ocurrido un error: ', e)
