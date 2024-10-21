@@ -1,8 +1,3 @@
----
-typora-root-url: ../img
-typora-copy-images-to: ../img
----
-
 # Python DB
 
 Lo consiguiente tiene como objetivo repasar conceptos de python con base de datos.
@@ -407,5 +402,338 @@ mysql> select * from user;
 |  1 | Yonier   | password1 | yonier@aprendiendo.com | 2024-10-20 23:14:27 |
 +----+----------+-----------+------------------------+---------------------+
 1 row in set (0.01 sec)
+```
+
+### Insertar múltiples registros
+
+Nos apoyaremos de una lista el cual contiene múltiples tuplas
+
+#### Opción 1 con for
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+users = [
+    ('Manuel', 'passwordManuel', 'manuel@aprendiendo.com'),
+    ('Yonier', 'passwordYonier', 'yonier@aprendiendo.com'),
+    ('Iris', 'passwordIris', 'iris@aprendiendo.com'),
+    ('Gl', 'passwordGl', 'gl@aprendiendo.com'),
+]
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            # Ejecutamos la consulta
+            for user in users:
+                cursor.execute(query, user)
+
+            # Guardamos los cambios en la base de datos
+            conn.commit()
+        
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+#### Opcion 2 con executemany
+
+Harémos uso del método `executemany`
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+users = [
+    ('Manuel', 'passwordManuel', 'manuel@aprendiendo.com'),
+    ('Yonier', 'passwordYonier', 'yonier@aprendiendo.com'),
+    ('Iris', 'passwordIris', 'iris@aprendiendo.com'),
+    ('Gl', 'passwordGl', 'gl@aprendiendo.com'),
+]
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            # Ejecutamos la consulta
+            # for user in users:
+            #     cursor.execute(query, user)
+            
+            cursor.executemany(query, users)
+
+            # Guardamos los cambios en la base de datos
+            conn.commit()
+        
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+#### Salida
+
+```
+mysql> select * from user;
++----+----------+----------------+------------------------+---------------------+
+| id | username | password       | email                  | created_at          |
++----+----------+----------------+------------------------+---------------------+
+|  1 | Manuel   | passwordManuel | manuel@aprendiendo.com | 2024-10-20 23:51:06 |
+|  2 | Yonier   | passwordYonier | yonier@aprendiendo.com | 2024-10-20 23:51:06 |
+|  3 | Iris     | passwordIris   | iris@aprendiendo.com   | 2024-10-20 23:51:06 |
+|  4 | Gl       | passwordGl     | gl@aprendiendo.com     | 2024-10-20 23:51:06 |
++----+----------+----------------+------------------------+---------------------+
+4 rows in set (0.01 sec)
+```
+
+## Obtener registros
+
+Puedes obtener el número de registros así;
+
+```python
+# Consulta para obtener todos los registros de la tabla user
+query = "SELECT * FROM user"
+            
+# Ejecutamos la consulta que obtiene la cantidad de registros
+rows = cursor.execute(query)
+print(rows)
+```
+
+Para acceder a los values se debe usar el método `fetchall`
+
+```python
+print('='*50)
+print('Registros obtenidos')
+for row in cursor.fetchall():
+    print(row)
+```
+
+### Ejemplo completo
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+users = [
+    ('Manuel', 'passwordManuel', 'manuel@aprendiendo.com'),
+    ('Yonier', 'passwordYonier', 'yonier@aprendiendo.com'),
+    ('Iris', 'passwordIris', 'iris@aprendiendo.com'),
+    ('Gl', 'passwordGl', 'gl@aprendiendo.com'),
+]
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            # Ejecutamos la consulta
+            # for user in users:
+            #     cursor.execute(query, user)
+            
+            cursor.executemany(query, users)
+
+            # Guardamos los cambios en la base de datos
+            conn.commit()
+            
+            # Consulta para obtener todos los registros de la tabla user
+            query = "SELECT * FROM user"
+            
+            # Ejecutamos la consulta que obtiene la cantidad de registros
+            rows = cursor.execute(query)
+            print(rows)
+            
+            # Obtenemos todos los registros
+            # print(cursor.fetchall())
+            print('='*50)
+            print('Registros obtenidos')
+            for row in cursor.fetchall():
+                print(row)
+                
+            print('='*50)
+            print('Registros obtenidos por columna')
+            print('='*50)
+            query = "SELECT username, email FROM user"
+            rows = cursor.execute(query)
+            for row in cursor.fetchall():
+                print(row)
+            
+                
+        
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
+```
+
+## Obtener número limitado de registros
+
+Lo puedes hacer directamente desde la consulta o utilizando el método `fetchmany`
+
+```python
+import pymysql
+# Importamos la libreria decouple para leer las variables de entorno
+from decouple import config
+
+DROP_TABLE_USER = "DROP TABLE IF EXISTS user"
+
+USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )"""
+
+users = [
+    ('Manuel', 'passwordManuel', 'manuel@aprendiendo.com'),
+    ('Yonier', 'passwordYonier', 'yonier@aprendiendo.com'),
+    ('Iris', 'passwordIris', 'iris@aprendiendo.com'),
+    ('Gl', 'passwordGl', 'gl@aprendiendo.com'),
+]
+
+if __name__ == '__main__':
+    try:
+        conn = pymysql.connect(host='127.0.0.1', 
+                                port=3306, 
+                                user=config('DB_USER'), 
+                                passwd=config('DB_PASS'), 
+                                db=config('DB_NAME') 
+                                )
+        
+        #PARA EJECUTAR SENTENCIAS SQL NOS APOYAMOS DE UN CURSOR
+        with conn.cursor() as cursor:
+            #YA CON EL OBJETO CURSOR PODEMOS EJECUTAR LAS SENTENCIAS SQL
+            cursor.execute(DROP_TABLE_USER)
+            cursor.execute(USER_TABLE)
+            
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
+            # Ejecutamos la consulta
+            # for user in users:
+            #     cursor.execute(query, user)
+            
+            cursor.executemany(query, users)
+
+            # Guardamos los cambios en la base de datos
+            conn.commit()
+            
+            # Consulta para obtener todos los registros de la tabla user
+            query = "SELECT * FROM user"
+            
+            # Ejecutamos la consulta que obtiene la cantidad de registros
+            rows = cursor.execute(query)
+            print(rows)
+            
+            # Obtenemos todos los registros
+            # print(cursor.fetchall())
+            print('='*50)
+            print('Registros obtenidos')
+            for row in cursor.fetchall():
+                print(row)
+                
+            print('='*50)
+            print('Registros obtenidos por columna')
+            print('='*50)
+            query = "SELECT username, email FROM user"
+            rows = cursor.execute(query)
+            for row in cursor.fetchall():
+                print(row)
+                
+            print('='*50)
+            print('Registros 2 obtenidos')
+            print('='*50)
+            query = "SELECT username, email FROM user WHERE id LIMIT 2"
+            rows = cursor.execute(query)
+            for row in cursor.fetchall():
+                print(row)
+                
+            print('='*50)
+            print('Registros FETCHMANY LIMIT 2')
+            print('='*50)
+            query = "SELECT * FROM user"
+            rows = cursor.execute(query)
+            for row in cursor.fetchmany(2):
+                print(row)
+            
+    except pymysql.MySQLError as e:
+        print('Ha ocurrido un error: ', e)
+        
+    finally:
+        conn.close()
+        print('Connection closed')
 ```
 

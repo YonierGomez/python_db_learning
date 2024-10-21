@@ -12,6 +12,13 @@ USER_TABLE = """CREATE TABLE IF NOT EXISTS user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"""
 
+users = [
+    ('Manuel', 'passwordManuel', 'manuel@aprendiendo.com'),
+    ('Yonier', 'passwordYonier', 'yonier@aprendiendo.com'),
+    ('Iris', 'passwordIris', 'iris@aprendiendo.com'),
+    ('Gl', 'passwordGl', 'gl@aprendiendo.com'),
+]
+
 if __name__ == '__main__':
     try:
         conn = pymysql.connect(host='127.0.0.1', 
@@ -27,11 +34,13 @@ if __name__ == '__main__':
             cursor.execute(DROP_TABLE_USER)
             cursor.execute(USER_TABLE)
             
-            query = "INSERT INTO user (username, password, email) VALUES ('{}', '{}', '{}')".format('Yonier', 'password1', 'yonier@aprendiendo.com')
+            query = "INSERT INTO user (username, password, email) VALUES (%s, %s, %s)"
             # Ejecutamos la consulta
-            cursor.execute(query)
+            # for user in users:
+            #     cursor.execute(query, user)
             
-            
+            cursor.executemany(query, users)
+
             # Guardamos los cambios en la base de datos
             conn.commit()
         
