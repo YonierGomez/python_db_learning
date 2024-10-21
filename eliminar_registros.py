@@ -56,7 +56,7 @@ if __name__ == '__main__':
             print('Eliminamos el ultimo registro')
             print('='*50)
             query = "DELETE FROM user WHERE id = %s"
-            cursor.execute(query, (4))
+            cursor.execute(query, (4,))
             conn.commit()
             
             print('='*50)
