@@ -1,2 +1,3 @@
-db_docker/mariadb_data 
-db_docker/mysql_data
+db_docker_compose/mariadb_data 
+db_docker_compose/mysql_data
+env

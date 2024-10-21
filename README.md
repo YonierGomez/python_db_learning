@@ -36,6 +36,12 @@ Ejecutamos el siguiente comando en el directorio donde está nuestro compose.yam
 docker compose -p work_db_python up -d
 ```
 
+## Crear entorno virtual
+
+```shell
+python3 -m venv env
+```
+
 ## Generar archivos en python
 
 ### Conexión
@@ -897,3 +903,63 @@ if __name__ == '__main__':
         print('Connection closed')
 ```
 
+# Postgress DB
+
+Cambiaremos el gestor de base de datos, en este caso postgress
+
+## Descargar módulo
+
+```shell
+pip install --upgrade pip
+pip install psycopg2-binary
+```
+
+Si tienes MacOS
+
+```shell
+brew install postgresql
+pip install --upgrade pip
+pip install psycopg2-binary
+```
+
+### Compose.yaml
+
+```yaml
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      - MYSQL_ROOT_PASSWORD=neytor # Cambia esto por una contraseña segura
+      - MYSQL_DATABASE=neytor_db         # Nombre de la base de datos que se creará al iniciar
+      - MYSQL_USER=neytor                    # Usuario que se creará
+      - MYSQL_PASSWORD=neytor       # Contraseña del usuario
+    ports:
+      - "3306:3306"  # Exponer el puerto para acceder a la base de datos
+    volumes:
+      - $PWD/mysql_data:/var/lib/mysql  # Persistencia de datos
+      
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      - POSTGRES_DB=neytor_db           # Nombre de la base de datos que se creará al iniciar
+      - POSTGRES_USER=neytor            # Usuario que se creará
+      - POSTGRES_PASSWORD=neytor        # Contraseña del usuario
+    ports:
+      - "5432:5432"  # Exponer el puerto para acceder a la base de datos
+    volumes:
+      - $PWD/postgres_data:/var/lib/postgresql/data  # Persistencia de datos
+```
+
+## Corremos nuestro compose.yaml
+
+Ejecutamos el siguiente comando en el directorio donde está nuestro compose.yaml
+
+```shell
+docker compose -p work_db_python up -d
+
+podman-compose -p work_db_python ps
+```
+
+## 
