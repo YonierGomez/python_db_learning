@@ -43,20 +43,6 @@ if __name__ == '__main__':
 
             # Guardamos los cambios en la base de datos
             conn.commit()
-            
-            # Consulta para obtener todos los registros de la tabla user
-            query = "SELECT * FROM user"
-            
-            # Ejecutamos la consulta que obtiene la cantidad de registros
-            rows = cursor.execute(query)
-            print(rows)
-            
-            # Obtenemos todos los registros
-            # print(cursor.fetchall())
-            print('='*50)
-            print('Registros obtenidos')
-            for row in cursor.fetchall():
-                print(row)
                 
             print('='*50)
             print('Registros obtenidos por columna')
@@ -65,31 +51,21 @@ if __name__ == '__main__':
             rows = cursor.execute(query)
             for row in cursor.fetchall():
                 print(row)
-                
+
             print('='*50)
-            print('Registros 2 obtenidos')
+            print('Reemplazamos el primer registro')
             print('='*50)
-            query = "SELECT username, email FROM user WHERE id LIMIT 2"
+            query = "UPDATE user SET username = %s WHERE id = %s"
+            cursor.execute(query, ('Manuelito', 1))
+            conn.commit()
+            
+            print('='*50)
+            print('Registros obtenidos por columna')
+            print('='*50)
+            query = "SELECT username, email FROM user"
             rows = cursor.execute(query)
             for row in cursor.fetchall():
                 print(row)
-                
-            print('='*50)
-            print('Registros FETCHMANY LIMIT 2')
-            print('='*50)
-            query = "SELECT * FROM user"
-            rows = cursor.execute(query)
-            for row in cursor.fetchmany(2):
-                print(row)
-                
-            print('='*50)
-            print('Obtener un solo registro, el primero')
-            print('='*50)
-            
-            query = "SELECT * FROM user WHERE id = 1"
-            rows = cursor.execute(query)
-            user = cursor.fetchone()
-            print(user)
             
     except pymysql.MySQLError as e:
         print('Ha ocurrido un error: ', e)
